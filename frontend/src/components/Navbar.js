@@ -13,7 +13,8 @@ const Navbar = () => {
   return (
     <nav>
       <Link className="navName" to={"/"}>
-        <img src="./MDC.png"></img>
+        
+        <img className="Robot" src="./Robot.png"></img>
         <h3>AI Tutor</h3>
       </Link>
 
