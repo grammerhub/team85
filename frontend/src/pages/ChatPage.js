@@ -3,8 +3,11 @@ import { Configuration, OpenAIApi } from "openai";
 import { Dna } from "react-loader-spinner";
 
 const Chat = () => {
-  const configuration = new Configuration({
-    apiKey: "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",
+  
+    const apiKey = process.env.REACT_APP_API_KEY;
+
+    const configuration = new Configuration({
+    apiKey: apiKey,
   });
 
   const openai = new OpenAIApi(configuration);
@@ -36,7 +39,7 @@ const Chat = () => {
     }
   }
 
-  const [userInput, setUserInput] = useState("");
+  let [userInput, setUserInput] = useState("");
 
   const [conversation, setConversation] = useState([]);
 
@@ -44,7 +47,7 @@ const Chat = () => {
 
   const containerRef = useRef(null);
 
-  const [classSubject, setSubject] = useState("");
+  const [classSubject, setSubject] = useState(null);
 
   const [showChat, setShowChat] = useState(null);
 
@@ -67,9 +70,9 @@ const Chat = () => {
 
   const [age, setAge] = useState("");
 
-  const grade = (grade) => {
-    setAge(` also answer this as if im a ${grade} school student`);
-  };
+  const [name, setName] = useState("Jimmy")
+
+ 
 
   useEffect(() => {
     const fetchFirst = async () => {
@@ -78,7 +81,7 @@ const Chat = () => {
           {
             role: "user",
             content:
-              "Please greet me as if I am a student who just walked in to class.",
+              `Please greet me as if I am a student who just walked in to class, my name is ${name}.`
           },
         ];
         const result = await getChatCompletion(messages);
@@ -115,14 +118,20 @@ const Chat = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    if(classSubject !== "history"){
+     userInput = userInput.concat(" ", classSubject);
+     } else {
+        userInput = userInput
+     }
+      
 
-    let subjectAdded = userInput.concat(" ", classSubject);
-
-    let finalSubmit = subjectAdded.concat(" ", age);
-    console.log(finalSubmit)
+    // let finalSubmit = subjectAdded.concat(" ", age);
+    // console.log(finalSubmit)
+    console.log(userInput)
 
     const result = await getChatCompletion(
-      conversation.concat([{ role: "user", content: finalSubmit }])
+      conversation.concat([{ role: "user", content: userInput }])
     );
     setConversation((prevConversation) => [
       ...prevConversation,
@@ -138,31 +147,51 @@ const Chat = () => {
 
   const handleChange = () => {
     setShowChat(null)
-    setSubject('')
+    setSubject(null)
   }
 
   return (
     <div className="GPT">
-      <h1 className="MD">AI Tutor</h1>
+      {!classSubject && classSubject !== "" &&(
+        <>
+          <h1 className="chatIntro">{`Hi ${name}, my name is Alfred`}</h1>
+          <h1 className="tutor">I'm your personal AI tutor</h1>
+          <h3>What would you like help with today?</h3>
+        </>
+      )}
       {!showChat ? (
         <div>
           <div className="buttons">
-            <button onClick={() => setTutor("math")}>Math</button>
-            <button onClick={() => setTutor("history")}>History</button>
-            <button onClick={() => setTutor("science")}>Science</button>
-            <button onClick={() => setTutor("literature")}>Literature</button>
-          </div>
-          <div className="buttons">
-            <button onClick={() => grade("elementary")}>
-              Elementary School
-            </button>
-            <button onClick={() => grade("middle")}>Middle School</button>
-            <button onClick={() => grade("high")}>High School</button>
+            <div>
+              <button onClick={() => setTutor("math")}>
+                <img src="./calculating.png"></img>
+              </button>
+              <h3>Math</h3>
+            </div>
+            <div>
+              <button onClick={() => setTutor("history")}>
+                <img src="./parchment.png"></img>
+              </button>
+              <h3>History</h3>
+            </div>
+            <div>
+              <button onClick={() => setTutor("science")}>
+                <img src="./chemistry.png"></img>
+              </button>
+              <h3>Science</h3>
+            </div>
+            <div>
+              <button onClick={() => setTutor("literature")}>
+                <img src="./research.png"></img>
+              </button>
+              <h3>Literature</h3>
+            </div>
           </div>
         </div>
       ) : (
         <div>
           <div className="response">
+            <h1>AI Tutor</h1>
             {isLoading ? (
               <div className="loader-container">
                 <Dna className="dna" color="#00BFFF" height={100} width={100} />
